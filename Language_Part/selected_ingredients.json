@@ -1,0 +1,44 @@
+{
+  "timestamp_utc": "2026-04-25T04:10:43.653061+00:00",
+  "request_text": "我想要蓝莓和芒果",
+  "selected_ids": [
+    12,
+    16
+  ],
+  "numbered_selection": [
+    {
+      "seq": 1,
+      "id": 12,
+      "name": "蓝莓",
+      "category": "fruit"
+    },
+    {
+      "seq": 2,
+      "id": 16,
+      "name": "芒果",
+      "category": "fruit"
+    }
+  ],
+  "selected_items": [
+    {
+      "id": 12,
+      "name": "蓝莓",
+      "aliases": [
+        "blueberry",
+        "blueberries"
+      ],
+      "category": "fruit"
+    },
+    {
+      "id": 16,
+      "name": "芒果",
+      "aliases": [
+        "mango",
+        "mangoes"
+      ],
+      "category": "fruit"
+    }
+  ],
+  "confirmation_text": "已为你确认食材：12号蓝莓，16号芒果。请确认是否正确。",
+  "confirmation_audio_path": ""
+}
