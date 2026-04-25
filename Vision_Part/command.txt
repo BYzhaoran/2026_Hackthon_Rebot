@@ -1,0 +1,4 @@
+python scripts/realtime_open3d_scene.py \
+  --camera-backend orbbec \
+  --serial AY3Z331006L \
+  --device cpu
