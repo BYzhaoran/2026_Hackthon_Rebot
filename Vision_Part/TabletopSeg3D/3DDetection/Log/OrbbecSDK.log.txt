@@ -1,0 +1,113 @@
+[04/25 09:55:41.959840][info][11323][LinuxUsbPal.cpp:335] Create PollingDeviceWatcher!
+[04/25 09:55:41.959932][info][11323][DeviceManager.cpp:25] Current found device(s): (1)
+[04/25 09:55:41.959942][info][11323][DeviceManager.cpp:34] 	- Name: Gemini2, PID: 0x0670, SN/ID: AY3Z331006L, Connection: USB3.0
+[04/25 09:55:41.959948][info][11323][DeviceManager.cpp:339] Enable net device enumeration: true
+[04/25 09:55:43.981250][info][11323][DeviceManager.cpp:25] Current device(s) list: (1)
+[04/25 09:55:43.981326][info][11323][DeviceManager.cpp:34] 	- Name: Gemini2, PID: 0x0670, SN/ID: AY3Z331006L, Connection: USB3.0
+[04/25 09:55:43.981602][warning][11323][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=108
+[04/25 09:55:43.981622][warning][11323][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=4035
+[04/25 09:55:43.981662][warning][11323][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=5003
+[04/25 09:55:43.988832][info][11323][DeviceManager.cpp:194] Device created successfully! Name: Gemini 2, PID: 0x0670, SN/ID: AY3Z331006L FW: 1.4.98
+[04/25 09:55:44.054242][info][11323][ObLibuvcDevicePort.cpp:87] uvc_close done.
+[04/25 09:55:44.054328][info][11323][ObLibuvcDevicePort.cpp:88] ~ObLibuvcDevicePort done
+[04/25 09:56:41.217139][info][11387][LinuxUsbPal.cpp:335] Create PollingDeviceWatcher!
+[04/25 09:56:41.217253][info][11387][DeviceManager.cpp:25] Current found device(s): (1)
+[04/25 09:56:41.217265][info][11387][DeviceManager.cpp:34] 	- Name: Gemini2, PID: 0x0670, SN/ID: AY3Z331006L, Connection: USB3.0
+[04/25 09:56:41.217278][info][11387][DeviceManager.cpp:339] Enable net device enumeration: true
+[04/25 09:56:43.236486][info][11387][DeviceManager.cpp:25] Current device(s) list: (1)
+[04/25 09:56:43.236569][info][11387][DeviceManager.cpp:34] 	- Name: Gemini2, PID: 0x0670, SN/ID: AY3Z331006L, Connection: USB3.0
+[04/25 09:56:43.236843][warning][11387][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=108
+[04/25 09:56:43.236869][warning][11387][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=4035
+[04/25 09:56:43.236922][warning][11387][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=5003
+[04/25 09:56:43.244076][info][11387][DeviceManager.cpp:194] Device created successfully! Name: Gemini 2, PID: 0x0670, SN/ID: AY3Z331006L FW: 1.4.98
+[04/25 09:56:43.309217][info][11387][ObLibuvcDevicePort.cpp:87] uvc_close done.
+[04/25 09:56:43.309291][info][11387][ObLibuvcDevicePort.cpp:88] ~ObLibuvcDevicePort done
+[04/25 09:56:49.158654][info][11387][LinuxUsbPal.cpp:335] Create PollingDeviceWatcher!
+[04/25 09:56:49.158749][info][11387][DeviceManager.cpp:25] Current found device(s): (1)
+[04/25 09:56:49.158759][info][11387][DeviceManager.cpp:34] 	- Name: Gemini2, PID: 0x0670, SN/ID: AY3Z331006L, Connection: USB3.0
+[04/25 09:56:49.158767][info][11387][DeviceManager.cpp:339] Enable net device enumeration: true
+[04/25 09:56:51.178234][info][11387][DeviceManager.cpp:25] Current device(s) list: (1)
+[04/25 09:56:51.178331][info][11387][DeviceManager.cpp:34] 	- Name: Gemini2, PID: 0x0670, SN/ID: AY3Z331006L, Connection: USB3.0
+[04/25 09:56:51.178596][warning][11387][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=108
+[04/25 09:56:51.178627][warning][11387][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=4035
+[04/25 09:56:51.178694][warning][11387][PropertyServer.cpp:87] [AY3Z331006L] Not added to property map, property not found in OBPropertyBaseInfoMap, id=5003
+[04/25 09:56:51.435336][info][11387][DeviceManager.cpp:194] Device created successfully! Name: Gemini 2, PID: 0x0670, SN/ID: AY3Z331006L FW: 1.4.98
+[04/25 09:56:51.435462][info][11387][Pipeline.cpp:42] [AY3Z331006L] Pipeline created with device: {name: Gemini 2, sn: AY3Z331006L}, @0x5C0CEF3AC700
+[04/25 09:56:51.503632][info][11387][Pipeline.cpp:216] [AY3Z331006L] Check and set config done!
+[04/25 09:56:51.504656][info][11387][Pipeline.cpp:254] [AY3Z331006L] Try to start streams!
+[04/25 09:56:51.504672][info][11387][VideoSensor.cpp:58] [AY3Z331006L] Try to start stream: {type: Color, format: RGB, width: 640, height: 480, fps: 30}
+[04/25 09:56:51.504677][info][11387][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STARTING@Color
+[04/25 09:56:51.504682][info][11387][VideoSensor.cpp:127] [AY3Z331006L] Start backend stream: {type: Color, format: MJPG, width: 640, height: 480, fps: 30}
+[04/25 09:56:51.568224][info][11387][VideoSensor.cpp:58] [AY3Z331006L] Try to start stream: {type: Depth, format: Y14, width: 640, height: 400, fps: 30}
+[04/25 09:56:51.568263][info][11387][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STARTING@Depth
+[04/25 09:56:51.568274][info][11387][VideoSensor.cpp:127] [AY3Z331006L] Start backend stream: {type: Depth, format: Y14, width: 640, height: 400, fps: 30}
+[04/25 09:56:51.633475][warning][11499][VideoSensor.cpp:194] [AY3Z331006L] This frame will be dropped because the data size does not match the expectation! size=32744, expected=448000 @Depth
+[04/25 09:56:51.634700][info][11387][Pipeline.cpp:270] [AY3Z331006L] Start streams done!
+[04/25 09:56:51.634753][info][11387][Pipeline.cpp:238] [AY3Z331006L] Pipeline start done!
+[04/25 09:56:51.675394][info][11498][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STREAMING@Color
+[04/25 09:56:51.685112][warning][11499][ObException.hpp:48] Update data size(480756) > data buffer size! (448000)
+[04/25 09:56:51.695376][warning][11499][ObLibuvcDevicePort.cpp:465] Execute failure! A libobsensor_exception has occurred!
+ - where: ObLibuvcDevicePort.cpp(465):onFrameCallback
+ - msg: Update data size(480756) > data buffer size! (448000)
+ - type: N11libobsensor16memory_exceptionE
+[04/25 09:56:51.735748][warning][11387][Pipeline.cpp:305] [AY3Z331006L] Wait for frame timeout, you can try to increase the wait time! current timeout=100
+[04/25 09:56:51.749594][info][11499][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STREAMING@Depth
+[04/25 09:56:52.385000][warning][11502][Pipeline.cpp:295] [AY3Z331006L] Output frameset queue is full, drop oldest frameset!
+[04/25 09:56:55.418287][warning][11532][Pipeline.cpp:295] [AY3Z331006L] Output frameset queue is full, drop oldest frameset! [**30 logs in 3033ms, last: 09:56:55.324576**]
+[04/25 09:56:56.660084][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.639944fps
+[04/25 09:56:56.703656][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=27.446301fps
+[04/25 09:56:56.705217][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=27.473623fps
+[04/25 09:56:56.761726][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=30.175858fps
+[04/25 09:57:01.459523][warning][11539][Pipeline.cpp:295] [AY3Z331006L] Output frameset queue is full, drop oldest frameset! [**33 logs in 6041ms, last: 09:57:01.405237**]
+[04/25 09:57:01.671363][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.934143fps
+[04/25 09:57:01.715955][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=28.930567fps
+[04/25 09:57:01.717831][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=28.930567fps
+[04/25 09:57:01.772776][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.934143fps
+[04/25 09:57:06.682454][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.934143fps
+[04/25 09:57:06.726582][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=29.934143fps
+[04/25 09:57:06.728662][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=29.934143fps
+[04/25 09:57:06.784301][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.928171fps
+[04/25 09:57:11.693337][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.934143fps
+[04/25 09:57:11.741555][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=27.517448fps
+[04/25 09:57:11.743257][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=27.517448fps
+[04/25 09:57:11.795825][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.934143fps
+[04/25 09:57:13.465348][warning][11502][Pipeline.cpp:295] [AY3Z331006L] Output frameset queue is full, drop oldest frameset! [**74 logs in 12005ms**]
+[04/25 09:57:16.704775][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.934143fps
+[04/25 09:57:16.750543][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=28.748255fps
+[04/25 09:57:16.752419][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=28.748255fps
+[04/25 09:57:16.806699][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.934143fps
+[04/25 09:57:21.716015][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.934143fps
+[04/25 09:57:21.769422][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=29.886431fps
+[04/25 09:57:21.771059][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=29.886431fps
+[04/25 09:57:21.817386][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.934143fps
+[04/25 09:57:26.727079][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.928171fps
+[04/25 09:57:26.772281][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=28.382971fps
+[04/25 09:57:26.774439][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=28.382971fps
+[04/25 09:57:26.828534][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.934143fps
+[04/25 09:57:31.737766][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.940119fps
+[04/25 09:57:31.789882][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=29.499701fps
+[04/25 09:57:31.791429][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=29.499701fps
+[04/25 09:57:31.839261][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.934143fps
+[04/25 09:57:36.748825][info][11499][VideoSensor.cpp:153] [AY3Z331006L] Depth backend frame callback, frameRate=29.934143fps
+[04/25 09:57:36.794266][info][11498][VideoSensor.cpp:153] [AY3Z331006L] Color backend frame callback, frameRate=28.171827fps
+[04/25 09:57:36.796418][info][11501][SensorBase.cpp:370] [AY3Z331006L] Color Streaming... frameRate=28.171827fps
+[04/25 09:57:36.850695][info][11502][SensorBase.cpp:370] [AY3Z331006L] Depth Streaming... frameRate=29.934143fps
+[04/25 09:57:37.532136][warning][11564][Pipeline.cpp:295] [AY3Z331006L] Output frameset queue is full, drop oldest frameset! [**228 logs in 24066ms, last: 09:57:37.451340**]
+[04/25 09:57:40.024446][info][11387][Pipeline.cpp:336] [AY3Z331006L] Try to stop pipeline!
+[04/25 09:57:40.024476][info][11387][Pipeline.cpp:312] [AY3Z331006L] Try to stop streams!
+[04/25 09:57:40.024492][info][11387][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STOPPING@Depth
+[04/25 09:57:40.073644][info][11387][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STOPPED@Depth
+[04/25 09:57:40.073789][info][11387][Pipeline.cpp:326] [AY3Z331006L] Sensor stream stopped, sensorType=Depth
+[04/25 09:57:40.073802][info][11387][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STOPPING@Color
+[04/25 09:57:40.119886][info][11387][SensorBase.cpp:213] [AY3Z331006L] Stream state changed to STOPPED@Color
+[04/25 09:57:40.120011][info][11387][Pipeline.cpp:326] [AY3Z331006L] Sensor stream stopped, sensorType=Color
+[04/25 09:57:40.120018][info][11387][Pipeline.cpp:332] [AY3Z331006L] Stop streams done!
+[04/25 09:57:40.120270][info][11387][Pipeline.cpp:356] [AY3Z331006L] Stop pipeline done!
+[04/25 09:57:40.120525][info][11387][Pipeline.cpp:53] [AY3Z331006L] Pipeline destroyed! @0x5C0CEF3AC700
+[04/25 09:57:40.120743][info][11387][SensorBase.cpp:47] [AY3Z331006L] SensorBase is destroyed
+[04/25 09:57:40.121441][info][11387][ObLibuvcDevicePort.cpp:87] uvc_close done.
+[04/25 09:57:40.121458][info][11387][ObLibuvcDevicePort.cpp:88] ~ObLibuvcDevicePort done
+[04/25 09:57:40.121550][info][11387][SensorBase.cpp:47] [AY3Z331006L] SensorBase is destroyed
+[04/25 09:57:40.121837][info][11387][ObLibuvcDevicePort.cpp:87] uvc_close done.
+[04/25 09:57:40.121841][info][11387][ObLibuvcDevicePort.cpp:88] ~ObLibuvcDevicePort done
+[04/25 09:57:40.546743][warning][11598][Pipeline.cpp:295] [AY3Z331006L] Output frameset queue is full, drop oldest frameset! [**18 logs in 3014ms, last: 09:57:40.024050**]
