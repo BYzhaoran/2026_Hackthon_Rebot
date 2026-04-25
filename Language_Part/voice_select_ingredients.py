@@ -11,6 +11,15 @@ import numpy as np
 from openai import OpenAI
 from scipy.io.wavfile import read, write
 
+try:
+    from . import config
+    from .speech_core import add_playful_tone, speak_text
+    from .ingredient_selection_core import SelectionOutcome, best_effort_select_ids, extract_selected_ids
+except ImportError:
+    import config
+    from speech_core import add_playful_tone, speak_text
+    from ingredient_selection_core import SelectionOutcome, best_effort_select_ids, extract_selected_ids
+
 
 def require_sounddevice_for_audio() -> Any:
     try:
@@ -346,13 +355,14 @@ def select_ingredients(
     chat_model: str,
     request_text: str,
     ingredients: List[Dict[str, Any]],
-) -> List[int]:
+) -> SelectionOutcome:
     ingredient_text = build_ingredient_prompt(ingredients)
 
     system_prompt = (
-        "You are a strict ingredient selector. "
+        "You are an ingredient selector. "
         "Given a user cooking request and a numbered ingredient database, "
         "return only a JSON object with key 'selected_ids' whose value is a list of integers. "
+        "If there is no exact match, choose the closest ingredient IDs anyway instead of returning an empty list. "
         "Do not include any explanation."
     )
 
@@ -362,9 +372,9 @@ def select_ingredients(
         "Numbered ingredient database:\n"
         f"{ingredient_text}\n\n"
         "Rules:\n"
-        "1) Choose only IDs that are relevant to the user request.\n"
-        "2) Use IDs from the database only.\n"
-        "3) If nothing matches, return {'selected_ids': []} as JSON.\n"
+        "1) Choose only IDs from the database.\n"
+        "2) Prefer the best matching ingredient or ingredients.\n"
+        "3) If there is no exact match, still return the closest IDs instead of an empty list.\n"
         "Output format example: {\"selected_ids\": [1, 3, 8]}"
     )
 
@@ -378,62 +388,22 @@ def select_ingredients(
     )
 
     content = (resp.choices[0].message.content or "").strip()
-    return extract_selected_ids(content)
+    selected_ids = extract_selected_ids(content)
+    if selected_ids:
+        return SelectionOutcome(ids=selected_ids)
+    return best_effort_select_ids(request_text, ingredients)
 
 
-def build_confirmation_text(selected_items: List[Dict[str, Any]]) -> str:
+def build_confirmation_text(selected_items: List[Dict[str, Any]], selection_note: str = "") -> str:
     if not selected_items:
         return "没有匹配到明确食材，请再说一遍你需要的食材名称。"
 
-    parts = [f"{int(item['id'])}号{item['name']}" for item in selected_items]
+    parts = [item["name"] for item in selected_items]
     joined = "，".join(parts)
-    return f"已为你确认食材：{joined}。请确认是否正确。"
-
-
-def make_tts_client(secret_cfg: Dict[str, Any], fallback_client: OpenAI) -> OpenAI:
-    tts_api_key = str(secret_cfg.get("TTS_API_KEY", "")).strip() or os.getenv("TTS_API_KEY", "").strip()
-    tts_base_url = str(secret_cfg.get("TTS_BASE_URL", "")).strip() or os.getenv("TTS_BASE_URL", "").strip()
-
-    if not tts_api_key and not tts_base_url:
-        return fallback_client
-
-    if not tts_api_key:
-        raise EnvironmentError("TTS_API_KEY is required when TTS_BASE_URL is set")
-
-    if not tts_base_url:
-        tts_base_url = "https://api.openai.com/v1"
-
-    return OpenAI(api_key=tts_api_key, base_url=tts_base_url)
-
-
-def synthesize_confirmation_audio(
-    client: OpenAI,
-    text: str,
-    tts_model: str,
-    tts_voice: str,
-    tts_output_path: Path,
-) -> Path:
-    try:
-        speech = client.audio.speech.create(
-            model=tts_model,
-            voice=tts_voice,
-            input=text,
-        )
-    except Exception as exc:
-        raise RuntimeError(
-            "TTS generation failed. Check TTS model/base URL/API key compatibility."
-        ) from exc
-
-    if hasattr(speech, "stream_to_file"):
-        speech.stream_to_file(str(tts_output_path))
-    else:
-        audio_bytes = getattr(speech, "content", None)
-        if not isinstance(audio_bytes, (bytes, bytearray)):
-            raise RuntimeError("TTS API returned no audio content")
-        with tts_output_path.open("wb") as f:
-            f.write(audio_bytes)
-
-    return tts_output_path
+    confirmation = f"已为你确认食材：{joined}。请确认是否正确。"
+    if selection_note:
+        confirmation += f" {selection_note}"
+    return add_playful_tone(confirmation)
 
 
 def save_output(
@@ -443,6 +413,7 @@ def save_output(
     ingredients: List[Dict[str, Any]],
     confirmation_text: str,
     confirmation_audio_path: Optional[Path],
+    selection_note: str = "",
 ) -> None:
     item_map = {int(x["id"]): x for x in ingredients}
     selected_items = [item_map[i] for i in selected_ids if i in item_map]
@@ -464,6 +435,7 @@ def save_output(
         "selected_items": selected_items,
         "confirmation_text": confirmation_text,
         "confirmation_audio_path": str(confirmation_audio_path) if confirmation_audio_path else "",
+        "selection_note": selection_note,
     }
 
     with output_path.open("w", encoding="utf-8") as f:
@@ -570,7 +542,6 @@ def main() -> int:
         ingredients = load_ingredients(db_path)
         secret_cfg = load_secret_config(config_path)
         chat_client = make_chat_client(secret_cfg)
-        tts_client = make_tts_client(secret_cfg, fallback_client=chat_client)
 
         local_stt_model = str(secret_cfg.get("LOCAL_STT_MODEL", "small")).strip() or os.getenv(
             "LOCAL_STT_MODEL", "small"
@@ -583,11 +554,40 @@ def main() -> int:
             or str(secret_cfg.get("DEEPSEEK_CHAT_MODEL", "")).strip()
             or os.getenv("DEEPSEEK_CHAT_MODEL", "deepseek-chat").strip()
         )
-        tts_model = str(secret_cfg.get("TTS_MODEL", "")).strip() or os.getenv("TTS_MODEL", "gpt-4o-mini-tts").strip()
-        tts_voice = str(secret_cfg.get("TTS_VOICE", "")).strip() or os.getenv("TTS_VOICE", "alloy").strip()
+        tts_engine = (
+            str(secret_cfg.get("TTS_ENGINE", "")).strip()
+            or os.getenv("TTS_ENGINE", config.TTS_ENGINE).strip()
+            or config.TTS_ENGINE
+        )
         tts_enabled = (not args.disable_tts) and str_to_bool(
             str(secret_cfg.get("TTS_ENABLED", "true")).strip() or os.getenv("TTS_ENABLED", "true").strip()
         )
+        config.ENABLE_TTS = tts_enabled
+        config.TTS_ENGINE = tts_engine
+        tts_api_key = str(secret_cfg.get("TTS_API_KEY", "")).strip() or os.getenv("TTS_API_KEY", "").strip()
+        tts_base_url = str(secret_cfg.get("TTS_BASE_URL", "")).strip() or os.getenv("TTS_BASE_URL", "").strip()
+        tts_model = str(secret_cfg.get("TTS_MODEL", "")).strip() or os.getenv("TTS_MODEL", config.TTS_MODEL).strip()
+        tts_voice = str(secret_cfg.get("TTS_VOICE", "")).strip() or os.getenv("TTS_VOICE", config.TTS_VOICE).strip()
+        if tts_api_key:
+            config.TTS_API_KEY = tts_api_key
+        if tts_base_url:
+            config.TTS_BASE_URL = tts_base_url
+        if tts_model:
+            config.TTS_MODEL = tts_model
+        if tts_voice:
+            config.TTS_VOICE = tts_voice
+        if "EDGE_TTS_VOICE" in secret_cfg:
+            edge_voice = str(secret_cfg.get("EDGE_TTS_VOICE", "")).strip()
+            if edge_voice:
+                config.EDGE_TTS_VOICE = edge_voice
+        if "DEEPSEEK_TTS_MODEL" in secret_cfg:
+            deepseek_tts_model = str(secret_cfg.get("DEEPSEEK_TTS_MODEL", "")).strip()
+            if deepseek_tts_model:
+                config.DEEPSEEK_TTS_MODEL = deepseek_tts_model
+        if "DEEPSEEK_TTS_VOICE" in secret_cfg:
+            deepseek_tts_voice = str(secret_cfg.get("DEEPSEEK_TTS_VOICE", "")).strip()
+            if deepseek_tts_voice:
+                config.DEEPSEEK_TTS_VOICE = deepseek_tts_voice
 
         request_text = args.text.strip()
         if not request_text:
@@ -608,27 +608,31 @@ def main() -> int:
 
         print(f"[INFO] Transcribed request: {request_text}")
 
-        selected_ids = select_ingredients(
+        selection = select_ingredients(
             client=chat_client,
             chat_model=chat_model,
             request_text=request_text,
             ingredients=ingredients,
         )
+        selected_ids = selection.ids
 
         item_map = {int(x["id"]): x for x in ingredients}
         selected_items = [item_map[i] for i in selected_ids if i in item_map]
-        confirmation_text = build_confirmation_text(selected_items)
+        confirmation_text = build_confirmation_text(selected_items, selection_note=selection.note)
         confirmation_audio_path: Optional[Path] = None
 
         if tts_enabled:
-            confirmation_audio_path = synthesize_confirmation_audio(
-                client=tts_client,
-                text=confirmation_text,
-                tts_model=tts_model,
-                tts_voice=tts_voice,
-                tts_output_path=tts_output_path,
+            speech_result = speak_text(
+                confirmation_text,
+                engine=tts_engine,
+                output_path=str(tts_output_path),
+                auto_play=config.ENABLE_PLAYBACK,
             )
-            print(f"[INFO] TTS confirmation audio saved: {confirmation_audio_path}")
+            if speech_result.audio_path:
+                confirmation_audio_path = Path(speech_result.audio_path)
+                print(f"[INFO] TTS confirmation audio saved: {confirmation_audio_path}")
+                if speech_result.played:
+                    print("[INFO] Confirmation audio played")
 
         save_output(
             output_path=out_path,
@@ -637,6 +641,7 @@ def main() -> int:
             ingredients=ingredients,
             confirmation_text=confirmation_text,
             confirmation_audio_path=confirmation_audio_path,
+            selection_note=selection.note,
         )
 
         print(f"[INFO] Selected IDs: {selected_ids}")

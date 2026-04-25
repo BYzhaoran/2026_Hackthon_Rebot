@@ -306,30 +306,81 @@ def play_audio(audio: np.ndarray, sample_rate: int) -> None:
         print(f"[WARN] Playback failed: {e}")
 
 
+def play_tone(
+    frequency: float = 880.0,
+    duration_sec: float = 0.12,
+    volume: float = 0.18,
+    sample_rate: int = 22050,
+) -> None:
+    """播放单个短提示音。"""
+    if not config.ENABLE_PLAYBACK:
+        print("[INFO] Playback disabled (ENABLE_PLAYBACK=false)")
+        return
+
+    duration_sec = max(0.02, float(duration_sec))
+    frequency = max(50.0, float(frequency))
+    volume = max(0.0, min(float(volume), 1.0))
+    sample_rate = max(8000, int(sample_rate))
+
+    t = np.linspace(0, duration_sec, int(sample_rate * duration_sec), endpoint=False)
+    envelope = np.linspace(0.0, 1.0, t.size)
+    envelope = np.minimum(envelope, envelope[::-1])
+    audio = (np.sin(2 * np.pi * frequency * t) * envelope * volume).astype(np.float32)
+    play_audio(audio, sample_rate)
+
+
+def play_prompt_sound(kind: str) -> None:
+    """播放预定义提示音。"""
+    kind = (kind or "").strip().lower()
+    if kind == "wake":
+        play_tone(frequency=880.0, duration_sec=0.10, volume=0.18)
+        play_tone(frequency=1175.0, duration_sec=0.10, volume=0.16)
+    elif kind == "record":
+        play_tone(frequency=660.0, duration_sec=0.14, volume=0.18)
+    else:
+        play_tone(frequency=880.0, duration_sec=0.10, volume=0.18)
+
+
 def play_audio_file(audio_path: str) -> None:
     """
-    播放 WAV/MP3 文件
-    
-    Args:
-        audio_path: 文件路径
+    使用系统命令播放音频文件
     """
-    if audio_path.endswith(".wav"):
-        audio, sr = load_audio_from_wav(audio_path)
-        play_audio(audio, sr)
-    elif audio_path.endswith(".mp3"):
-        # MP3 优先使用 mpg123，若不存在则回退 ffplay
-        mpg123 = shutil.which("mpg123")
-        ffplay = shutil.which("ffplay")
-        if mpg123:
-            print(f"[INFO] MP3 playback: {mpg123} {audio_path}")
-            subprocess.run([mpg123, "-q", audio_path], check=False)
-        elif ffplay:
-            print(f"[INFO] MP3 playback: {ffplay} {audio_path}")
-            subprocess.run([ffplay, "-nodisp", "-autoexit", "-loglevel", "quiet", audio_path], check=False)
-        else:
-            print("[WARN] No MP3 player found (mpg123/ffplay). Consider local TTS WAV fallback.")
+    if not config.ENABLE_PLAYBACK:
+        print("[INFO] Playback disabled (ENABLE_PLAYBACK=false)")
+        return
+
+    audio_path = str(audio_path)
+    suffix = Path(audio_path).suffix.lower()
+    
+    # 根据文件类型优先选择匹配的播放器，避免把 MP3 交给只适合 WAV 的播放器
+    if suffix == ".mp3":
+        players = [
+            ("mpg123", ["mpg123", "-q"]),
+            ("ffplay", ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet"]),
+            ("paplay", ["paplay"]),
+        ]
     else:
-        print(f"[WARN] Unsupported audio format: {audio_path}")
+        players = [
+            ("aplay", ["aplay"]),
+            ("paplay", ["paplay"]),
+            ("ffplay", ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet"]),
+            ("mpg123", ["mpg123", "-q"]),
+        ]
+    
+    for player_name, player_cmd in players:
+        player = shutil.which(player_name)
+        if player:
+            try:
+                print(f"[INFO] Playing with {player_name}: {audio_path}")
+                subprocess.run(player_cmd + [audio_path], check=True, timeout=30)
+                print("[INFO] Playback finished")
+                return
+            except subprocess.TimeoutExpired:
+                print(f"[WARN] {player_name} timeout")
+            except Exception as e:
+                print(f"[WARN] {player_name} failed: {e}")
+    
+    print("[ERROR] No working audio player found")
 
 
 # ==================== 初始化 ====================

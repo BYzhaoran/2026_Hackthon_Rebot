@@ -26,6 +26,7 @@
 Language_Part/
 ├── config.py                    # ⚙️  统一配置（所有参数）
 ├── audio_core.py                # 🎙️  音频录制/播放模块
+├── speech_core.py               # 🔊 文本清洗 + TTS + 播放统一入口
 ├── tts_core.py                  # 🔊 TTS 合成模块
 ├── voice_pipeline.py            # 🎯 主流程脚本（新版本）
 ├── ingredients_db.json          # 📋 食材数据库
@@ -90,6 +91,16 @@ python voice_pipeline.py --duration 5 --input-device 0
 python voice_pipeline.py --help
 ```
 
+### 5️⃣ 持续监听 + 唤醒词
+
+```bash
+# 持续监听“大厨”及其相似发音，唤醒后进入命令识别
+python voice_pipeline.py --continuous
+
+# 调整唤醒监听窗口
+python voice_pipeline.py --continuous --wake-window 2.5 --wake-command-window 5
+```
+
 ## 📋 使用示例
 
 ### 示例 1：文本输入 + TTS
@@ -112,7 +123,8 @@ python voice_pipeline.py \
     {"seq": 3, "id": 5, "name": "鸡蛋", "category": "protein"}
   ],
   "selected_items": [...],
-  "confirmation_text": "已为你确认食材：1号番茄, 2号土豆, 5号鸡蛋。请确认是否正确。",
+  "confirmation_text": "已为你确认食材：番茄, 土豆, 鸡蛋。请确认是否正确。 ...",
+  "selection_note": "",
   "confirmation_audio_path": "/path/to/confirmation_audio.mp3"
 }
 ```
@@ -150,6 +162,15 @@ export EDGE_TTS_VOICE=zh-CN-XiaoxiaoNeural
 # 使用 DeepSeek TTS（需要API额度）
 export TTS_ENGINE=deepseek
 export DEEPSEEK_TTS_VOICE=alloy
+```
+
+### 唤醒词配置
+
+```bash
+export WAKE_WORD=大厨
+export WAKE_WORD_MATCH_THRESHOLD=0.5
+export WAKE_LISTEN_WINDOW_SEC=2.5
+export WAKE_COMMAND_WINDOW_SEC=5
 ```
 
 ### 自定义 STT 模型

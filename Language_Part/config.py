@@ -68,7 +68,13 @@ DEEPSEEK_DISABLE_PROXY = os.getenv("DEEPSEEK_DISABLE_PROXY", "false").lower() ==
 # ==================== TTS 配置 ====================
 TTS_ENGINE = os.getenv("TTS_ENGINE", "edge-tts")  # edge-tts, deepseek, local
 EDGE_TTS_VOICE = os.getenv("EDGE_TTS_VOICE", "zh-CN-XiaoxiaoNeural")  # 微软女性声
+EDGE_TTS_TIMEOUT_SEC = float(os.getenv("EDGE_TTS_TIMEOUT_SEC", "20"))
 TTS_OUTPUT_PATH = BASE_DIR / "confirmation_audio.mp3"
+
+TTS_API_KEY = os.getenv("TTS_API_KEY", "")
+TTS_BASE_URL = os.getenv("TTS_BASE_URL", "")
+TTS_MODEL = os.getenv("TTS_MODEL", "gpt-4o-mini-tts")
+TTS_VOICE = os.getenv("TTS_VOICE", "alloy")
 
 DEEPSEEK_TTS_MODEL = os.getenv("DEEPSEEK_TTS_MODEL", "tts-1")
 DEEPSEEK_TTS_VOICE = os.getenv("DEEPSEEK_TTS_VOICE", "alloy")
@@ -79,11 +85,26 @@ ENABLE_PLAYBACK = os.getenv("ENABLE_PLAYBACK", "true").lower() == "true"
 ENABLE_DEBUG_LOG = os.getenv("ENABLE_DEBUG_LOG", "false").lower() == "true"
 
 # ==================== 唤醒词配置（Fridge 风格） ====================
-WAKE_WORDS = {
-    "小冰": "recipe",
-    "小兵": "recipe",
-    "小炳": "recipe",
-}
+WAKE_WORD = os.getenv("WAKE_WORD", "大厨")
+WAKE_WORD_ALIASES = [
+    "大厨",
+    "大出",
+    "大处",
+    "大初",
+    "大橱",
+    "大锄",
+    "大触",
+    "打厨",
+    "搭厨",
+    "达厨",
+    "大叔",
+    "大筑",
+]
+WAKE_WORD_MATCH_THRESHOLD = float(os.getenv("WAKE_WORD_MATCH_THRESHOLD", "0.5"))
+WAKE_LISTEN_WINDOW_SEC = float(os.getenv("WAKE_LISTEN_WINDOW_SEC", "2.5"))
+WAKE_COMMAND_WINDOW_SEC = float(os.getenv("WAKE_COMMAND_WINDOW_SEC", "5.0"))
+WAKE_COOLDOWN_SEC = float(os.getenv("WAKE_COOLDOWN_SEC", "1.5"))
+WAKE_AUTO_STRIP = os.getenv("WAKE_AUTO_STRIP", "true").lower() == "true"
 
 # ==================== 从 secrets.local.json 加载覆盖值 ====================
 def load_secrets():

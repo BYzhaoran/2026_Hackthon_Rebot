@@ -3,7 +3,6 @@ TTS Core Module - 文字转语音统一接口
 支持 Edge-TTS（推荐）和 DeepSeek TTS
 """
 
-import asyncio
 import os
 import sys
 import shutil
@@ -23,7 +22,10 @@ try:
 except ImportError:
     pyttsx3 = None
 
-from openai import OpenAI
+try:
+    from openai import OpenAI
+except ImportError:
+    OpenAI = None
 try:
     from . import config
 except ImportError:
@@ -43,35 +45,81 @@ def _wait_for_file_ready(file_path: str, timeout_sec: float = 5.0) -> bool:
     return False
 
 
-# ==================== TTS 工厂函数 ====================
-async def text_to_speech_edge(
+def _contains_cjk(text: str) -> bool:
+    """粗略判断文本是否包含中文等 CJK 字符。"""
+    return any("\u4e00" <= ch <= "\u9fff" for ch in text)
+
+
+def _normalize_output_path(output_path: str, suffix: str) -> str:
+    """将输出路径规范化到指定后缀。"""
+    return str(Path(output_path).with_suffix(suffix))
+
+
+def _cleanup_stale_output(requested_path: str, actual_path: str) -> None:
+    """删除失败链路留下的占位文件。"""
+    requested = Path(requested_path)
+    actual = Path(actual_path)
+    if requested == actual:
+        return
+    if requested.exists():
+        try:
+            requested.unlink()
+        except OSError:
+            pass
+
+
+def _run_edge_tts_subprocess(text: str, voice: str, output_path: str) -> None:
+    """通过子进程调用 edge_tts，支持硬超时。"""
+    temp_output_path = f"{output_path}.edge_tts.tmp"
+    script = (
+        "import asyncio, sys\n"
+        "import edge_tts\n"
+        "text = sys.argv[1]\n"
+        "voice = sys.argv[2]\n"
+        "output_path = sys.argv[3]\n"
+        "async def main():\n"
+        "    communicate = edge_tts.Communicate(text, voice)\n"
+        "    await communicate.save(output_path)\n"
+        "asyncio.run(main())\n"
+    )
+    try:
+        subprocess.run(
+            [sys.executable, "-c", script, text, voice, temp_output_path],
+            check=True,
+            timeout=config.EDGE_TTS_TIMEOUT_SEC,
+        )
+        os.replace(temp_output_path, output_path)
+    finally:
+        if os.path.exists(temp_output_path):
+            try:
+                os.remove(temp_output_path)
+            except OSError:
+                pass
+
+
+def text_to_speech_edge(
     text: str,
     voice: str = None,
     output_path: str = None,
 ) -> str:
     """
-    使用 Edge-TTS 合成语音（推荐方案）
-    
-    Args:
-        text: 待合成文本
-        voice: 声音代码，默认 zh-CN-XiaoxiaoNeural
-        output_path: 输出 MP3 路径，默认 config.TTS_OUTPUT_PATH
-        
-    Returns:
-        输出文件路径
+    使用 Edge-TTS 合成语音，输出 MP3 格式
     """
     if edge_tts is None:
         raise RuntimeError("edge_tts not installed")
     
     voice = voice or config.EDGE_TTS_VOICE
-    output_path = output_path or str(config.TTS_OUTPUT_PATH)
+    # Edge-TTS 实际输出是 MP3 流，必须用 .mp3 后缀避免被错误当成 WAV 处理
+    if output_path:
+        output_path = _normalize_output_path(output_path, ".mp3")
+    else:
+        output_path = str(config.TTS_OUTPUT_PATH.with_suffix('.mp3'))
     
     print(f"[INFO] Synthesizing TTS with Edge-TTS: {voice}")
     print(f"  Text: {text[:50]}...")
     
     try:
-        communicate = edge_tts.Communicate(text, voice)
-        await communicate.save(output_path)
+        _run_edge_tts_subprocess(text=text, voice=voice, output_path=output_path)
         print(f"[INFO] TTS saved to {output_path}")
         return output_path
     except Exception as e:
@@ -85,7 +133,7 @@ def text_to_speech_deepseek(
     output_path: str = None,
 ) -> str:
     """
-    使用 DeepSeek API 合成语音（需要充足的API额度）
+    使用 DeepSeek API 合成语音，输出 MP3 格式（需要充足的API额度）
     
     Args:
         text: 待合成文本
@@ -96,10 +144,12 @@ def text_to_speech_deepseek(
         输出文件路径
     """
     voice = voice or config.DEEPSEEK_TTS_VOICE
-    output_path = output_path or str(config.TTS_OUTPUT_PATH)
+    output_path = _normalize_output_path(output_path, ".mp3") if output_path else str(config.TTS_OUTPUT_PATH.with_suffix(".mp3"))
     
     if not config.DEEPSEEK_API_KEY:
         raise ValueError("DEEPSEEK_API_KEY not set")
+    if OpenAI is None:
+        raise RuntimeError("openai package not installed")
     
     print(f"[INFO] Synthesizing TTS with DeepSeek: {voice}")
     print(f"  Text: {text[:50]}...")
@@ -125,6 +175,50 @@ def text_to_speech_deepseek(
     except Exception as e:
         print(f"[ERROR] DeepSeek TTS failed: {e}")
         raise
+
+
+def text_to_speech_openai_compatible(
+    text: str,
+    model: str = None,
+    voice: str = None,
+    output_path: str = None,
+    api_key: str = None,
+    base_url: str = None,
+) -> str:
+    """使用 OpenAI-compatible 语音接口合成 MP3。"""
+    if OpenAI is None:
+        raise RuntimeError("openai package not installed")
+
+    api_key = (api_key or config.TTS_API_KEY).strip()
+    base_url = (base_url or config.TTS_BASE_URL).strip() or "https://api.openai.com/v1"
+    model = model or config.TTS_MODEL
+    voice = voice or config.TTS_VOICE
+    output_path = _normalize_output_path(output_path, ".mp3") if output_path else str(config.TTS_OUTPUT_PATH.with_suffix(".mp3"))
+
+    if not api_key:
+        raise ValueError("TTS_API_KEY not set")
+
+    print(f"[INFO] Synthesizing TTS with OpenAI-compatible backend: {model}/{voice}")
+    print(f"  Text: {text[:50]}...")
+
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    speech = client.audio.speech.create(
+        model=model,
+        voice=voice,
+        input=text,
+    )
+
+    if hasattr(speech, "stream_to_file"):
+        speech.stream_to_file(str(output_path))
+    else:
+        audio_bytes = getattr(speech, "content", None)
+        if not isinstance(audio_bytes, (bytes, bytearray)):
+            raise RuntimeError("TTS API returned no audio content")
+        with open(output_path, "wb") as f:
+            f.write(audio_bytes)
+
+    print(f"[INFO] TTS saved to {output_path}")
+    return output_path
 
 
 def text_to_speech_local(
@@ -197,12 +291,33 @@ def text_to_speech(
     try:
         if engine == "edge-tts":
             try:
-                return asyncio.run(text_to_speech_edge(text, output_path=output_path))
+                return text_to_speech_edge(text, output_path=output_path)
             except Exception as edge_err:
-                print(f"[WARN] Edge-TTS unavailable, fallback to local TTS: {edge_err}")
-                return text_to_speech_local(text, output_path=output_path)
+                print(f"[WARN] Edge-TTS failed, trying fallback TTS: {edge_err}")
+                if config.DEEPSEEK_API_KEY:
+                    try:
+                        result = text_to_speech_deepseek(text, output_path=output_path)
+                        _cleanup_stale_output(output_path or result, result)
+                        return result
+                    except Exception as deepseek_err:
+                        print(f"[WARN] DeepSeek TTS fallback failed: {deepseek_err}")
+                if config.TTS_API_KEY:
+                    try:
+                        result = text_to_speech_openai_compatible(
+                            text,
+                            output_path=output_path,
+                        )
+                        _cleanup_stale_output(output_path or result, result)
+                        return result
+                    except Exception as openai_err:
+                        print(f"[WARN] OpenAI-compatible TTS fallback failed: {openai_err}")
+                result = text_to_speech_local(text, output_path=output_path)
+                _cleanup_stale_output(output_path or result, result)
+                return result
         elif engine == "deepseek":
             return text_to_speech_deepseek(text, output_path=output_path)
+        elif engine == "openai":
+            return text_to_speech_openai_compatible(text, output_path=output_path)
         elif engine == "local":
             return text_to_speech_local(text, output_path=output_path)
         else:

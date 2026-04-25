@@ -1,6 +1,6 @@
 {
-  "timestamp_utc": "2026-04-25T05:53:40.180974+00:00",
-  "request_text": "水果水果水果水果水果沒錯",
+  "timestamp_utc": "2026-04-25T07:22:18.754228+00:00",
+  "request_text": "吃点好吃的",
   "selected_ids": [
     11,
     12,
@@ -120,6 +120,7 @@
       "category": "fruit"
     }
   ],
-  "confirmation_text": "已为你确认食材：11号仙女果, 12号蓝莓, 13号草莓, 14号奇异果, 15号香蕉, 16号芒果, 17号杨桃。请确认是否正确。",
-  "confirmation_audio_path": "/home/zhaoran/2026_Hackthon_Rebot/Language_Part/confirmation_audio.mp3"
+  "confirmation_text": "已为你确认食材：仙女果, 蓝莓, 草莓, 奇异果, 香蕉, 芒果, 杨桃。请确认是否正确。 确认完毕！系统稳定，食材清单已锁定。",
+  "confirmation_audio_path": "/home/zhaoran/2026_Hackthon_Rebot/Language_Part/confirmation_audio.mp3",
+  "selection_note": ""
 }
