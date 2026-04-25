@@ -1,31 +1,103 @@
 {
-  "timestamp_utc": "2026-04-25T04:10:43.653061+00:00",
-  "request_text": "我想要蓝莓和芒果",
+  "timestamp_utc": "2026-04-25T05:53:40.180974+00:00",
+  "request_text": "水果水果水果水果水果沒錯",
   "selected_ids": [
+    11,
     12,
-    16
+    13,
+    14,
+    15,
+    16,
+    17
   ],
   "numbered_selection": [
     {
       "seq": 1,
+      "id": 11,
+      "name": "仙女果",
+      "category": "fruit"
+    },
+    {
+      "seq": 2,
       "id": 12,
       "name": "蓝莓",
       "category": "fruit"
     },
     {
-      "seq": 2,
+      "seq": 3,
+      "id": 13,
+      "name": "草莓",
+      "category": "fruit"
+    },
+    {
+      "seq": 4,
+      "id": 14,
+      "name": "奇异果",
+      "category": "fruit"
+    },
+    {
+      "seq": 5,
+      "id": 15,
+      "name": "香蕉",
+      "category": "fruit"
+    },
+    {
+      "seq": 6,
       "id": 16,
       "name": "芒果",
+      "category": "fruit"
+    },
+    {
+      "seq": 7,
+      "id": 17,
+      "name": "杨桃",
       "category": "fruit"
     }
   ],
   "selected_items": [
+    {
+      "id": 11,
+      "name": "仙女果",
+      "aliases": [
+        "小番茄",
+        "圣女果",
+        "cherry tomato"
+      ],
+      "category": "fruit"
+    },
     {
       "id": 12,
       "name": "蓝莓",
       "aliases": [
         "blueberry",
         "blueberries"
+      ],
+      "category": "fruit"
+    },
+    {
+      "id": 13,
+      "name": "草莓",
+      "aliases": [
+        "strawberry",
+        "strawberries"
+      ],
+      "category": "fruit"
+    },
+    {
+      "id": 14,
+      "name": "奇异果",
+      "aliases": [
+        "kiwi",
+        "kiwifruit"
+      ],
+      "category": "fruit"
+    },
+    {
+      "id": 15,
+      "name": "香蕉",
+      "aliases": [
+        "banana",
+        "bananas"
       ],
       "category": "fruit"
     },
@@ -37,8 +109,17 @@
         "mangoes"
       ],
       "category": "fruit"
+    },
+    {
+      "id": 17,
+      "name": "杨桃",
+      "aliases": [
+        "starfruit",
+        "carambola"
+      ],
+      "category": "fruit"
     }
   ],
-  "confirmation_text": "已为你确认食材：12号蓝莓，16号芒果。请确认是否正确。",
-  "confirmation_audio_path": ""
+  "confirmation_text": "已为你确认食材：11号仙女果, 12号蓝莓, 13号草莓, 14号奇异果, 15号香蕉, 16号芒果, 17号杨桃。请确认是否正确。",
+  "confirmation_audio_path": "/home/zhaoran/2026_Hackthon_Rebot/Language_Part/confirmation_audio.mp3"
 }
