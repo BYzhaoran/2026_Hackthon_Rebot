@@ -9,16 +9,20 @@ import wave
 import json
 import shutil
 import subprocess
-from typing import Optional, Tuple
+import tempfile
+from typing import Any, Optional, Tuple
 import numpy as np
 from pathlib import Path
 
 try:
     import sounddevice as sd
+except ImportError:
+    sd = None
+
+try:
     from scipy.io import wavfile
-except ImportError as e:
-    print(f"[ERROR] Missing audio dependencies. Install with:\n  conda install -c conda-forge portaudio python-sounddevice scipy")
-    sys.exit(1)
+except ImportError:
+    wavfile = None
 
 try:
     from . import config
@@ -76,14 +80,27 @@ def save_cached_input_device(device_idx: int, sample_rate: int) -> None:
         pass
 
 
+def require_sounddevice_for_audio() -> Any:
+    """返回 sounddevice 模块；缺失时抛出清晰错误。"""
+    if sd is None:
+        raise RuntimeError(
+            "sounddevice is not installed. Install with 'conda install -c conda-forge portaudio python-sounddevice'."
+        )
+    return sd
+
+
 def list_input_devices(sd_module) -> None:
     """打印所有可用的输入设备"""
     devices = sd_module.query_devices()
     print("\n[INFO] Available input devices:")
+    found = False
     for i, dev in enumerate(devices):
         if dev["max_input_channels"] > 0:
+            found = True
             default_sr = dev.get("default_samplerate", "?")
             print(f"  [{i}] {dev['name']} (sr={default_sr}, channels={dev['max_input_channels']})")
+    if not found:
+        print("  [WARN] No input devices found")
     print()
 
 
@@ -263,7 +280,14 @@ def save_audio_to_wav(audio: np.ndarray, sample_rate: int, output_path: str = No
     
     # 转换为 int16
     audio_int16 = (audio * 32767).astype(np.int16)
-    wavfile.write(output_path, sample_rate, audio_int16)
+    if wavfile is not None:
+        wavfile.write(output_path, sample_rate, audio_int16)
+    else:
+        with wave.open(output_path, "wb") as wf:
+            wf.setnchannels(1 if audio_int16.ndim == 1 else audio_int16.shape[1])
+            wf.setsampwidth(2)
+            wf.setframerate(sample_rate)
+            wf.writeframes(audio_int16.tobytes())
     print(f"[INFO] Audio saved to {output_path}")
     return output_path
 
@@ -278,7 +302,14 @@ def load_audio_from_wav(audio_path: str) -> Tuple[np.ndarray, int]:
     Returns:
         (audio_float32, sample_rate)
     """
-    sample_rate, audio_int16 = wavfile.read(audio_path)
+    if wavfile is not None:
+        sample_rate, audio_int16 = wavfile.read(audio_path)
+    else:
+        with wave.open(audio_path, "rb") as wf:
+            sample_rate = wf.getframerate()
+            audio_int16 = np.frombuffer(wf.readframes(wf.getnframes()), dtype=np.int16)
+            if wf.getnchannels() > 1:
+                audio_int16 = audio_int16.reshape(-1, wf.getnchannels())
     audio_float32 = audio_int16.astype(np.float32) / 32768.0
     print(f"[INFO] Loaded audio from {audio_path} ({sample_rate}Hz)")
     return audio_float32, sample_rate
@@ -326,7 +357,29 @@ def play_tone(
     envelope = np.linspace(0.0, 1.0, t.size)
     envelope = np.minimum(envelope, envelope[::-1])
     audio = (np.sin(2 * np.pi * frequency * t) * envelope * volume).astype(np.float32)
-    play_audio(audio, sample_rate)
+    audio_int16 = np.int16(np.clip(audio, -1.0, 1.0) * 32767)
+
+    temp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            temp_path = tmp.name
+        if wavfile is not None:
+            wavfile.write(temp_path, sample_rate, audio_int16)
+        else:
+            with wave.open(temp_path, "wb") as wf:
+                wf.setnchannels(1 if audio_int16.ndim == 1 else audio_int16.shape[1])
+                wf.setsampwidth(2)
+                wf.setframerate(sample_rate)
+                wf.writeframes(audio_int16.tobytes())
+        play_audio_file(temp_path)
+    except Exception as e:
+        print(f"[WARN] Prompt tone playback failed: {e}")
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
 
 
 def play_prompt_sound(kind: str) -> None:

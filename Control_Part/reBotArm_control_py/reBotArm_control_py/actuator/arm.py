@@ -120,6 +120,16 @@ class RobotArm:
             return Controller.from_dm_serial(self._channel, 921600)
         return Controller(self._channel)
 
+    def get_controller(self, vendor: str = "damiao") -> Controller:
+        """返回指定厂商的共享 Controller。
+
+        适用于同一串口上还要复用已有连接的场景，例如夹爪和机械臂共用
+        `/dev/ttyACM0` 时，避免重复打开同一设备。
+        """
+        if vendor not in self._ctrl_map:
+            raise KeyError(f"Controller for vendor '{vendor}' is not initialized")
+        return self._ctrl_map[vendor]
+
     def _setup_motors(self) -> None:
         for jc in self._joints:
             vendor = jc.vendor

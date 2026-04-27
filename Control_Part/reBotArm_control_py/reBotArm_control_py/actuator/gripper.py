@@ -61,7 +61,11 @@ def load_cfg(path: str) -> dict:
 class Gripper:
     """夹爪控制句柄，直接持有 motorbridge.Controller。"""
 
-    def __init__(self, cfg_path: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        cfg_path: Optional[str] = None,
+        ctrl: Optional[Controller] = None,
+    ) -> None:
         if cfg_path is None:
             cfg_path = Path(__file__).parent.parent.parent / "config" / "gripper.yaml"
         cfg = load_cfg(str(cfg_path))
@@ -72,7 +76,8 @@ class Gripper:
         self._mit_kp = self._cfg.kp
         self._mit_kd = self._cfg.kd
 
-        self._ctrl: Optional[Controller] = None
+        self._ctrl: Optional[Controller] = ctrl
+        self._owns_ctrl = ctrl is None
         self._mot = None
         self._setup_motor()
 
@@ -87,7 +92,8 @@ class Gripper:
         return Controller(self._channel)
 
     def _setup_motor(self) -> None:
-        self._ctrl = self._make_controller()
+        if self._ctrl is None:
+            self._ctrl = self._make_controller()
         vendor = self._cfg.vendor
         if vendor == "damiao":
             self._mot = self._ctrl.add_damiao_motor(
@@ -384,7 +390,7 @@ class Gripper:
         self.stop_control_loop()
         self.disable()
         time.sleep(0.5)
-        if self._ctrl is not None:
+        if self._ctrl is not None and self._owns_ctrl:
             self._ctrl.shutdown()
             self._ctrl.close()
             self._ctrl = None

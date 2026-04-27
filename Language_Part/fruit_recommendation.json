@@ -1,0 +1,11 @@
+{
+  "timestamp_utc": "2026-04-26T09:24:09.577843+00:00",
+  "request_text": "我需要能治头痛的",
+  "recommended_seq": 3,
+  "recommended_name": "香蕉",
+  "tease": "头痛？吃根香蕉吧，它可是天然的解压神器，别让脑袋再‘蕉’虑啦！",
+  "voice_text": "我推荐3号香蕉，头痛？吃根香蕉吧，它可是天然的解压神器，别让脑袋再‘蕉’虑啦！",
+  "source": "ai",
+  "model": "deepseek-chat",
+  "reason": "香蕉富含钾和镁，能缓解肌肉紧张和头痛，尤其是紧张性头痛。"
+}

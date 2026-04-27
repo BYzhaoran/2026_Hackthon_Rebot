@@ -1,6 +1,6 @@
 """
-TTS Core Module - 文字转语音统一接口
-支持 Edge-TTS（推荐）和 DeepSeek TTS
+TTS Core Module - 文字转语音统一接口。
+支持 Edge-TTS（推荐）、DeepSeek TTS、OpenAI-compatible TTS 和本地离线回退。
 """
 
 import os
@@ -336,10 +336,10 @@ def generate_confirmation_audio(
     output_path: str = None,
 ) -> str:
     """
-    生成确认消息的语音版本
+    生成任意确认消息的语音版本
     
     Args:
-        confirmation_text: 确认文本（如 "已为你确认食材：12号蓝莓，16号芒果。请确认是否正确。"）
+        confirmation_text: 确认文本（如 "启动脚本已执行。请继续下一步。"）
         output_path: 输出文件路径
         
     Returns:
@@ -351,7 +351,7 @@ def generate_confirmation_audio(
 # ==================== 测试 ====================
 if __name__ == "__main__":
     # 测试 Edge-TTS
-    test_text = "这是一个测试。食材已确认：番茄和土豆。"
+    test_text = "这是一个测试。命令已经确认。"
     print(f"Testing TTS with text: {test_text}\n")
     
     try:
